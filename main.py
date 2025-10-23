@@ -5,8 +5,11 @@ from dotenv import load_dotenv
 from docx import Document
 import pandas as pd
 from openai import OpenAI
+from PyPDF2 import PdfReader
+from openpyxl import load_workbook
+from openpyxl.formatting.rule import ColorScaleRule
 
-# Load API key
+# --- Load API key ---
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
@@ -24,6 +27,18 @@ def load_rules(path="rules.json"):
 def read_docx(path):
     doc = Document(path)
     return "\n".join([p.text for p in doc.paragraphs])
+
+# --- Read PDF ---
+def read_pdf(path):
+    text = ""
+    try:
+        with open(path, "rb") as f:
+            reader = PdfReader(f)
+            for page in reader.pages:
+                text += page.extract_text() or ""
+    except Exception as e:
+        print(f"⚠️ Error reading PDF {path}: {e}")
+    return text.strip()
 
 # --- Evaluate one rule ---
 def evaluate_rule(document_text, rule):
@@ -46,7 +61,7 @@ Respond in strict JSON format:
 """
     try:
         response = client.chat.completions.create(
-            model="gpt-4o-mini",  # or gpt-4o
+            model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
             temperature=0
         )
@@ -74,16 +89,49 @@ def evaluate_document(document_text, rules):
         results[rule["description"]] = result["score"]
     return results
 
+# --- Apply conditional formatting ---
+def apply_conditional_formatting(excel_path):
+    wb = load_workbook(excel_path)
+    ws = wb.active
+
+    # Find the "Total Score" column
+    headers = [cell.value for cell in ws[1]]
+    if "Total Score" not in headers:
+        wb.save(excel_path)
+        return
+
+    col_index = headers.index("Total Score") + 1
+    col_letter = chr(64 + col_index)
+    last_row = ws.max_row
+
+    # Apply green-to-red gradient (low = red, high = green)
+    color_scale = ColorScaleRule(
+        start_type="min", start_color="F8696B",  # red
+        mid_type="percentile", mid_value=50, mid_color="FFEB84",  # yellow
+        end_type="max", end_color="63BE7B"  # green
+    )
+
+    ws.conditional_formatting.add(f"{col_letter}2:{col_letter}{last_row}", color_scale)
+    wb.save(excel_path)
+    print("🎨 Conditional formatting applied (red → green gradient on Total Score)")
+
 # --- Main function ---
 def main(documents_folder="documents", rules_file="rules.json", output_file="evaluation.xlsx"):
     rules = load_rules(rules_file)
     all_results = []
 
     for filename in os.listdir(documents_folder):
-        if filename.lower().endswith(".docx"):
+        if filename.lower().endswith((".docx", ".pdf")):
             file_path = os.path.join(documents_folder, filename)
             print(f"\n📝 Evaluating document: {filename}")
-            text = read_docx(file_path)
+
+            if filename.lower().endswith(".docx"):
+                text = read_docx(file_path)
+            elif filename.lower().endswith(".pdf"):
+                text = read_pdf(file_path)
+            else:
+                continue
+
             evaluation = evaluate_document(text, rules)
 
             # Build row: document name + rule scores + total
@@ -98,6 +146,9 @@ def main(documents_folder="documents", rules_file="rules.json", output_file="eva
     df = pd.DataFrame(all_results)
     df.to_excel(output_file, index=False)
     print(f"\n✅ Evaluation saved to Excel file: {output_file}")
+
+    # Add conditional formatting
+    apply_conditional_formatting(output_file)
 
 if __name__ == "__main__":
     main()
