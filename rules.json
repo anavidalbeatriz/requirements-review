@@ -1,0 +1,79 @@
+[
+  {
+    "id": "A",
+    "name": "Are the requirements written in 4 year old english, and when you read it can you understand it?",
+    "description": "Evaluates if the requirements are simple and understandable.",
+    "criteria": {
+      "0": "No.",
+      "1": "Occasionally Consistent.",
+      "2": "Mostly Consistent",
+      "3": "Fully Consistent"
+    }
+  },
+  {
+    "id": "B",
+    "name": "Are the requirements being signed off by the business?",
+    "description": "Checks if business stakeholders approve the requirements.",
+    "criteria": {
+      "0": "No.",
+      "1": "Occasionally Consistent.",
+      "2": "Mostly Consistent",
+      "3": "Fully Consistent"
+    }
+  },
+  {
+    "id": "C",
+    "name": "Is the tech lead formally reviewing and signing off on the requirements?",
+    "description": "Ensures technical review and approval by the tech lead.",
+    "criteria": {
+      "0": "No.",
+      "1": "Occasionally Consistent.",
+      "2": "Mostly Consistent",
+      "3": "Fully Consistent"
+    }
+  },
+  {
+    "id": "D",
+    "name": "Are open questions formally documented?",
+    "description": "Checks if open questions are clearly tracked and documented.",
+    "criteria": {
+      "0": "No.",
+      "1": "Occasionally Consistent.",
+      "2": "Mostly Consistent",
+      "3": "Fully Consistent"
+    }
+  },
+  {
+    "id": "E",
+    "name": "Do the requirements document out-of-scope as well as in-scope items?",
+    "description": "Ensures both in-scope and out-of-scope items are documented.",
+    "criteria": {
+      "0": "No.",
+      "1": "Occasionally Consistent.",
+      "2": "Mostly Consistent",
+      "3": "Fully Consistent"
+    }
+  },
+  {
+    "id": "F",
+    "name": "Document assumptions & dependencies",
+    "description": "Checks if assumptions and dependencies are explicitly documented.",
+    "criteria": {
+      "0": "No.",
+      "1": "Occasionally Consistent.",
+      "2": "Mostly Consistent",
+      "3": "Fully Consistent"
+    }
+  },
+  {
+    "id": "G",
+    "name": "Are you tracking changes to the requirements?",
+    "description": "Evaluates if changes to requirements are being tracked.",
+    "criteria": {
+      "0": "No.",
+      "1": "Occasionally Consistent.",
+      "2": "Mostly Consistent",
+      "3": "Fully Consistent"
+    }
+  }
+]
